@@ -258,7 +258,9 @@ const router = useRouter();
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedOption("");
       } else {
-        Alert.alert('Quiz Complete!', 'You have finished the quiz.');
+        Alert.alert('Quiz Complete!', 'You have finished the quiz. Redirecting to the main app...', [
+            { text: 'OK', onPress: () => router.replace('/mainNavigation') }
+        ]);
       }
     } else {
       Alert.alert('Error', 'Please select an option.');

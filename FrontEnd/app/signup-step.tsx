@@ -87,7 +87,7 @@ const SignupStep = () => {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={{ fontSize: 26, fontWeight: "600", paddingTop: 24 }}>
-          Verify your phone
+          Create Your Account
         </Text>
         <Text
           style={{
