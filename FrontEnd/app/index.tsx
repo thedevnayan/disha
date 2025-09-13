@@ -1,8 +1,10 @@
 import { Text, View, Image } from "react-native";
 import FeatureCard from "@/component/FeatureCard";
 import YellowBtn from "@/component/YellowBtn";
+import HighLightBtn from "@/component/HighLightBtn";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const route = useRouter();
 const onStarted = ()=>{
@@ -22,9 +24,9 @@ export default function Index() {
       <Image
         source={require("@/assets/images/Welcome-img.png")}
         resizeMode="cover"
-        style={{ margin: 0, width: "100%" , maxHeight: 280}}
+        style={{ margin: 0, width: "100%" , maxHeight: 240}}
       />
-      <View style={{ paddingHorizontal: 24, paddingBottom: 20 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 18 }}>
         <Text
           style={{
             fontSize: 28,
@@ -68,6 +70,7 @@ export default function Index() {
             detail={"Access a wealth of knowledge to guide your decisions."}
           />
           <YellowBtn btnTitle={"Get Started"} f={onStarted}/>
+          <HighLightBtn btnTitle={"Login"} f={onStarted}/>
         </View>
       </View>
     </SafeAreaView>
