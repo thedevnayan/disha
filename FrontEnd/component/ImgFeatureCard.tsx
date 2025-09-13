@@ -35,7 +35,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 17,
     borderRadius: 16,
-    alignItems: 'center',        
+    alignItems: 'center',
+    marginBottom: 16  
   },
   cardImg: {
     width: 80,
