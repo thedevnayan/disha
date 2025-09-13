@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Platform, ActionSheetIOS, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Platform, ActionSheetIOS, Modal, FlatList } from "react-native";
 
 type Option = {
   label: string;
@@ -21,6 +21,8 @@ const DropdownWithLegend: React.FC<DropdownWithLegendProps> = ({
   options,
   placeholder = "Select an option",
 }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
   const selectedOption = options.find(option => option.value === value);
   const displayText = selectedOption ? selectedOption.label : placeholder;
 
@@ -28,7 +30,6 @@ const DropdownWithLegend: React.FC<DropdownWithLegendProps> = ({
     if (Platform.OS === 'ios') {
       // iOS ActionSheet
       const optionLabels = options.map(option => option.label);
-      
       ActionSheetIOS.showActionSheetWithOptions(
         {
           options: ['Cancel', ...optionLabels],
@@ -43,22 +44,8 @@ const DropdownWithLegend: React.FC<DropdownWithLegendProps> = ({
         }
       );
     } else {
-      // Android Alert Picker
-      const buttons = options.map(option => ({
-        text: option.label,
-        onPress: () => onValueChange(option.value),
-      }));
-      
-      buttons.push({
-        text: 'Cancel',
-        style: 'cancel',
-      } as any);
-
-      Alert.alert(
-        `Select ${label}`,
-        '',
-        buttons
-      );
+      // Android & Web use modal
+      setModalVisible(true);
     }
   };
 
@@ -67,8 +54,7 @@ const DropdownWithLegend: React.FC<DropdownWithLegendProps> = ({
       <View style={styles.legendContainer}>
         <Text style={styles.legendText}>{label}</Text>
       </View>
-      
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.dropdown}
         onPress={showPicker}
         activeOpacity={0.7}
@@ -81,6 +67,44 @@ const DropdownWithLegend: React.FC<DropdownWithLegendProps> = ({
         </Text>
         <Text style={styles.iconStyle}>▼</Text>
       </TouchableOpacity>
+
+      {/* Modal for Android & Web */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPressOut={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            <FlatList
+              data={options}
+              keyExtractor={item => item.value}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.optionItem}
+                  onPress={() => {
+                    onValueChange(item.value);
+                    setModalVisible(false);
+                  }}
+                >
+                  <Text style={styles.optionText}>{item.label}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -126,39 +150,43 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
     marginLeft: 10,
   },
-  // Keeping original styles for reference
-  dropdownStyle: {
-    backgroundColor: "transparent",
-    borderWidth: 0,
-    height: "100%",
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: "#374151",
-  },
-  dropdownContainer: {
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    minWidth: 240,
+    maxHeight: 380,
+    elevation: 15,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    justifyContent: "center",
   },
-  itemTextStyle: {
+  optionItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  optionText: {
     fontSize: 16,
     color: "#374151",
   },
-  pickerInput: {
+  cancelButton: {
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  cancelText: {
     fontSize: 16,
-    color: "#374151",
-    backgroundColor: "transparent",
-    paddingVertical: 15,
-    paddingHorizontal: 0,
-    paddingRight: 30,
+    color: "#ef4444",
+    fontWeight: "600",
   },
 });
 
