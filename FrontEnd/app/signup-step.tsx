@@ -48,7 +48,7 @@ const SignupStep = () => {
 
     console.log("Final Signup Data:", data);
     Alert.alert("Success", "Account created successfully!");
-    router.replace("/");
+    router.push("/assesment");
   };
 
   return (
