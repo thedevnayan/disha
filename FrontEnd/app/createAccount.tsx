@@ -4,7 +4,9 @@ import DropdownWithLegend from "@/component/DropdownWithLegend";
 import { useState } from "react";
 import { View, Image, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ProgressBar from "@/component/ProgressBar";
 import "../global.css";
+import YellowBtn from "@/component/YellowBtn";
 
 // Example options
 const classOptions = [
@@ -130,28 +132,28 @@ const districtsByState: Record<string, { label: string; value: string }[]> = {
     // ...other districts
   ],
   jk: [
-  { label: "Srinagar", value: "srinagar" },
-  { label: "Anantnag", value: "anantnag" },
-  { label: "Baramulla", value: "baramulla" },
-  { label: "Budgam", value: "budgam" },
-  { label: "Ganderbal", value: "ganderbal" },
-  { label: "Kupwara", value: "kupwara" },
-  { label: "Pulwama", value: "pulwama" },
-  { label: "Shopian", value: "shopian" },
-  { label: "Kulgam", value: "kulgam" },
-  { label: "Bandipora", value: "bandipora" },
-  
-  // Jammu Division
-  { label: "Jammu", value: "jammu" },
-  { label: "Kathua", value: "kathua" },
-  { label: "Samba", value: "samba" },
-  { label: "Udhampur", value: "udhampur" },
-  { label: "Reasi", value: "reasi" },
-  { label: "Rajouri", value: "rajouri" },
-  { label: "Poonch", value: "poonch" },
-  { label: "Doda", value: "doda" },
-  { label: "Ramban", value: "ramban" },
-  { label: "Kishtwar", value: "kishtwar" }
+    { label: "Srinagar", value: "srinagar" },
+    { label: "Anantnag", value: "anantnag" },
+    { label: "Baramulla", value: "baramulla" },
+    { label: "Budgam", value: "budgam" },
+    { label: "Ganderbal", value: "ganderbal" },
+    { label: "Kupwara", value: "kupwara" },
+    { label: "Pulwama", value: "pulwama" },
+    { label: "Shopian", value: "shopian" },
+    { label: "Kulgam", value: "kulgam" },
+    { label: "Bandipora", value: "bandipora" },
+
+    // Jammu Division
+    { label: "Jammu", value: "jammu" },
+    { label: "Kathua", value: "kathua" },
+    { label: "Samba", value: "samba" },
+    { label: "Udhampur", value: "udhampur" },
+    { label: "Reasi", value: "reasi" },
+    { label: "Rajouri", value: "rajouri" },
+    { label: "Poonch", value: "poonch" },
+    { label: "Doda", value: "doda" },
+    { label: "Ramban", value: "ramban" },
+    { label: "Kishtwar", value: "kishtwar" }
   ],
   jh: [
     { label: "Ranchi", value: "ranchi" },
@@ -226,58 +228,58 @@ const districtsByState: Record<string, { label: string; value: string }[]> = {
     // ...other districts
   ],
   rj: [
-      { label: "Ajmer", value: "ajmer" },
-  { label: "Alwar", value: "alwar" },
-  { label: "Banswara", value: "banswara" },
-  { label: "Baran", value: "baran" },
-  { label: "Barmer", value: "barmer" },
-  { label: "Bharatpur", value: "bharatpur" },
-  { label: "Bhilwara", value: "bhilwara" },
-  { label: "Bikaner", value: "bikaner" },
-  { label: "Bundi", value: "bundi" },
-  { label: "Chittorgarh", value: "chittorgarh" },
-  { label: "Churu", value: "churu" },
-  { label: "Dausa", value: "dausa" },
-  { label: "Dholpur", value: "dholpur" },
-  { label: "Dungarpur", value: "dungarpur" },
-  { label: "Hanumangarh", value: "hanumangarh" },
-  { label: "Jaipur", value: "jaipur" },
-  { label: "Jaisalmer", value: "jaisalmer" },
-  { label: "Jalore", value: "jalore" },
-  { label: "Jhalawar", value: "jhalawar" },
-  { label: "Jhunjhunu", value: "jhunjhunu" },
-  { label: "Jodhpur", value: "jodhpur" },
-  { label: "Karauli", value: "karauli" },
-  { label: "Kota", value: "kota" },
-  { label: "Nagaur", value: "nagaur" },
-  { label: "Pali", value: "pali" },
-  { label: "Pratapgarh", value: "pratapgarh" },
-  { label: "Rajsamand", value: "rajsamand" },
-  { label: "Sawai Madhopur", value: "sawai_madhopur" },
-  { label: "Sikar", value: "sikar" },
-  { label: "Sirohi", value: "sirohi" },
-  { label: "Sri Ganganagar", value: "sri_ganganagar" },
-  { label: "Tonk", value: "tonk" },
-  { label: "Udaipur", value: "udaipur" },
-  { label: "Salumber", value: "salumber" },  // New district (as of 2023)
-  { label: "Neem Ka Thana", value: "neem_ka_thana" }, // New district (as of 2023)
-  { label: "Bhawani Mandi", value: "bhawani_mandi" }, // New district (as of 2023)
-  { label: "Anupgarh", value: "anupgarh" }, // New district (as of 2023)
-  { label: "Balotra", value: "balotra" }, // New district (as of 2023)
-  { label: "Beawar", value: "beawar" }, // New district (as of 2023)
-  { label: "Deeg", value: "deeg" }, // New district (as of 2023)
-  { label: "Didwana-Kuchaman", value: "didwana_kuchaman" }, // New district (as of 2023)
-  { label: "Dudu", value: "dudu" }, // New district (as of 2023)
-  { label: "Gangapur City", value: "gangapur_city" }, // New district (as of 2023)
-  { label: "Jaipur Rural", value: "jaipur_rural" }, // New district (as of 2023)
-  { label: "Jodhpur Rural", value: "jodhpur_rural" }, // New district (as of 2023)
-  { label: "Kotputli-Behror", value: "kotputli_behror" }, // New district (as of 2023)
-  { label: "Kushalgarh", value: "kushalgarh" }, // New district (as of 2023)
-  { label: "Mandawa", value: "mandawa" }, // New district (as of 2023)
-  { label: "Phalodi", value: "phalodi" }, // New district (as of 2023)
-  { label: "Shahpura", value: "shahpura" }, // New district (as of 2023)
-  { label: "Shrimadhopur", value: "shrimadhopur" }, // New district (as of 2023)
-  { label: "Jhotwara", value: "jhotwara" } // New district (as of 2023)
+    { label: "Ajmer", value: "ajmer" },
+    { label: "Alwar", value: "alwar" },
+    { label: "Banswara", value: "banswara" },
+    { label: "Baran", value: "baran" },
+    { label: "Barmer", value: "barmer" },
+    { label: "Bharatpur", value: "bharatpur" },
+    { label: "Bhilwara", value: "bhilwara" },
+    { label: "Bikaner", value: "bikaner" },
+    { label: "Bundi", value: "bundi" },
+    { label: "Chittorgarh", value: "chittorgarh" },
+    { label: "Churu", value: "churu" },
+    { label: "Dausa", value: "dausa" },
+    { label: "Dholpur", value: "dholpur" },
+    { label: "Dungarpur", value: "dungarpur" },
+    { label: "Hanumangarh", value: "hanumangarh" },
+    { label: "Jaipur", value: "jaipur" },
+    { label: "Jaisalmer", value: "jaisalmer" },
+    { label: "Jalore", value: "jalore" },
+    { label: "Jhalawar", value: "jhalawar" },
+    { label: "Jhunjhunu", value: "jhunjhunu" },
+    { label: "Jodhpur", value: "jodhpur" },
+    { label: "Karauli", value: "karauli" },
+    { label: "Kota", value: "kota" },
+    { label: "Nagaur", value: "nagaur" },
+    { label: "Pali", value: "pali" },
+    { label: "Pratapgarh", value: "pratapgarh" },
+    { label: "Rajsamand", value: "rajsamand" },
+    { label: "Sawai Madhopur", value: "sawai_madhopur" },
+    { label: "Sikar", value: "sikar" },
+    { label: "Sirohi", value: "sirohi" },
+    { label: "Sri Ganganagar", value: "sri_ganganagar" },
+    { label: "Tonk", value: "tonk" },
+    { label: "Udaipur", value: "udaipur" },
+    { label: "Salumber", value: "salumber" },  // New district (as of 2023)
+    { label: "Neem Ka Thana", value: "neem_ka_thana" }, // New district (as of 2023)
+    { label: "Bhawani Mandi", value: "bhawani_mandi" }, // New district (as of 2023)
+    { label: "Anupgarh", value: "anupgarh" }, // New district (as of 2023)
+    { label: "Balotra", value: "balotra" }, // New district (as of 2023)
+    { label: "Beawar", value: "beawar" }, // New district (as of 2023)
+    { label: "Deeg", value: "deeg" }, // New district (as of 2023)
+    { label: "Didwana-Kuchaman", value: "didwana_kuchaman" }, // New district (as of 2023)
+    { label: "Dudu", value: "dudu" }, // New district (as of 2023)
+    { label: "Gangapur City", value: "gangapur_city" }, // New district (as of 2023)
+    { label: "Jaipur Rural", value: "jaipur_rural" }, // New district (as of 2023)
+    { label: "Jodhpur Rural", value: "jodhpur_rural" }, // New district (as of 2023)
+    { label: "Kotputli-Behror", value: "kotputli_behror" }, // New district (as of 2023)
+    { label: "Kushalgarh", value: "kushalgarh" }, // New district (as of 2023)
+    { label: "Mandawa", value: "mandawa" }, // New district (as of 2023)
+    { label: "Phalodi", value: "phalodi" }, // New district (as of 2023)
+    { label: "Shahpura", value: "shahpura" }, // New district (as of 2023)
+    { label: "Shrimadhopur", value: "shrimadhopur" }, // New district (as of 2023)
+    { label: "Jhotwara", value: "jhotwara" } // New district (as of 2023)
   ],
   sk: [
     { label: "East Sikkim", value: "east_sikkim" },
@@ -364,7 +366,6 @@ const CreateAcc = () => {
   // Handle continue button
   const handleContinue = () => {
     if (validateForm()) {
-      // Store form data (you can use context or pass as params)
       const formData = {
         fullName,
         currentClass,
@@ -372,11 +373,14 @@ const CreateAcc = () => {
         selectedDistrict,
         language,
       };
-      
+
       console.log("Form Data:", formData);
-      
+
       // Navigate to next screen (SignupStep2 or email/password screen)
-      // router.push("/signup-step2");
+          router.navigate({
+      pathname: "/signup-step" as any,
+      params: { formData: JSON.stringify(formData) },
+    });
     }
   };
 
@@ -418,47 +422,19 @@ const CreateAcc = () => {
       </View>
 
       {/* Progress bar */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          paddingVertical: 16,
-        }}
-      >
-        <View
-          style={{
-            width: "30%",
-            height: 6,
-            borderRadius: 20,
-            backgroundColor: "#f9f506ff",
-          }}
-        ></View>
-        <View
-          style={{
-            width: "30%",
-            height: 6,
-            borderRadius: 20,
-            backgroundColor: "#E2E8F0",
-          }}
-        ></View>
-        <View
-          style={{
-            width: "30%",
-            height: 6,
-            borderRadius: 20,
-            backgroundColor: "#E2E8F0",
-          }}
-        ></View>
+      <View style={{ justifyContent: "center" }}>
+        <ProgressBar initial={0} toProgress={1} />
       </View>
 
+
       {/* Form - Wrapped in ScrollView */}
-<ScrollView 
-  showsVerticalScrollIndicator={false}
-  style={{ flex: 1 }}
-  contentContainerStyle={{ paddingBottom: 100 }}
-  nestedScrollEnabled={true} // Add this
-  keyboardShouldPersistTaps="handled" // Add this
->
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        nestedScrollEnabled={true} // Add this
+        keyboardShouldPersistTaps="handled" // Add this
+      >
 
         <Text
           style={{
@@ -506,7 +482,7 @@ const CreateAcc = () => {
           value={selectedState}
           onValueChange={(val) => {
             setSelectedState(val);
-            setSelectedDistrict(""); // reset district when state changes
+            setSelectedDistrict(""); 
           }}
         />
 
@@ -528,29 +504,8 @@ const CreateAcc = () => {
           onValueChange={setLanguage}
         />
       </ScrollView>
-
-      {/* Continue Button - Fixed at bottom */}
       <View style={{ paddingVertical: 20 }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: "#f9f506ff",
-            paddingVertical: 16,
-            borderRadius: 12,
-            alignItems: "center",
-          }}
-          activeOpacity={0.8}
-          onPress={handleContinue}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: "600",
-              color: "#1F2937",
-            }}
-          >
-            Continue
-          </Text>
-        </TouchableOpacity>
+        <YellowBtn btnTitle={"Continue"} f={handleContinue} />
       </View>
     </SafeAreaView>
   );
