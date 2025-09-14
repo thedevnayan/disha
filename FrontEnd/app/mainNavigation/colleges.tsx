@@ -12,6 +12,7 @@ import {
   Modal,
   Pressable,
   FlatList,
+  Alert,
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
@@ -22,7 +23,7 @@ interface College {
   id: string;
   name: string;
   rating: number;
-  reviews: string;
+  reviews: string; // label-like
   courses: string; // comma-separated
   distance: number; // km
   image: string;
@@ -108,18 +109,20 @@ export default function CollegeListScreen() {
   const [showStreamModal, setShowStreamModal] = useState(false);
   const [showCourseModal, setShowCourseModal] = useState(false);
 
-  const parseCourses = (coursesStr: string) =>
-    coursesStr.split(',').map((s) => s.trim());
+  const parseCourses = (coursesStr: string) => coursesStr.split(',').map((s) => s.trim());
+
+  // Filter courses shown in the Course modal based on selected stream
+  const courseOptions = useMemo(() => {
+    if (!selectedStream) return dropdownData.courses;
+    return dropdownData.courses.filter((c) => courseToStream[c] === selectedStream);
+  }, [selectedStream]);
 
   const filteredColleges = useMemo(() => {
     return collegeData.filter((college) => {
       const withinDistance = college.distance <= distance;
       const courses = parseCourses(college.courses);
 
-      const matchesCourse = selectedCourse
-        ? courses.includes(selectedCourse)
-        : true;
-
+      const matchesCourse = selectedCourse ? courses.includes(selectedCourse) : true;
       const matchesStream = selectedStream
         ? courses.some((c) => courseToStream[c] === selectedStream)
         : true;
@@ -132,8 +135,10 @@ export default function CollegeListScreen() {
     });
   }, [distance, selectedCourse, selectedStream, search]);
 
-  const clearStream = () => setSelectedStream(null);
-  const clearCourse = () => setSelectedCourse(null);
+  const clearStream = () => setSelectedStream("");
+  const clearCourse = () => setSelectedCourse("");
+  const isCourseContext = activeTab === 'Courses';
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -158,14 +163,20 @@ export default function CollegeListScreen() {
                 onPress={() => {
                   setSelectedStream(item);
                   setShowStreamModal(false);
+                  // If the selected course doesn't belong to the new stream, clear it
+                  if (selectedCourse && courseToStream[selectedCourse] !== item) {
+                    setSelectedCourse("");
+                  }
                 }}
+                accessibilityRole="button"
               >
                 <Text style={styles.modalItemText}>{item}</Text>
               </TouchableOpacity>
             )}
+            ListEmptyComponent={<Text style={{ padding: 12, color: '#666' }}>No streams</Text>}
           />
           {selectedStream && (
-            <TouchableOpacity style={styles.clearBtn} onPress={clearStream}>
+            <TouchableOpacity style={styles.clearBtn} onPress={clearStream} accessibilityRole="button">
               <Text style={styles.clearBtnText}>Clear</Text>
             </TouchableOpacity>
           )}
@@ -181,9 +192,11 @@ export default function CollegeListScreen() {
       >
         <Pressable style={styles.modalBackdrop} onPress={() => setShowCourseModal(false)} />
         <View style={styles.modalSheet}>
-          <Text style={styles.modalTitle}>Select Course</Text>
+          <Text style={styles.modalTitle}>
+            {selectedStream ? `Select Course (${selectedStream})` : 'Select Course'}
+          </Text>
           <FlatList
-            data={dropdownData.courses}
+            data={courseOptions}
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -192,13 +205,19 @@ export default function CollegeListScreen() {
                   setSelectedCourse(item);
                   setShowCourseModal(false);
                 }}
+                accessibilityRole="button"
               >
                 <Text style={styles.modalItemText}>{item}</Text>
               </TouchableOpacity>
             )}
+            ListEmptyComponent={
+              <Text style={{ padding: 12, color: '#666' }}>
+                No courses available for the selected stream
+              </Text>
+            }
           />
           {selectedCourse && (
-            <TouchableOpacity style={styles.clearBtn} onPress={clearCourse}>
+            <TouchableOpacity style={styles.clearBtn} onPress={clearCourse} accessibilityRole="button">
               <Text style={styles.clearBtnText}>Clear</Text>
             </TouchableOpacity>
           )}
@@ -207,12 +226,10 @@ export default function CollegeListScreen() {
 
       {/* Main Content Area */}
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Colleges</Text>
+        </View>
         <View style={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Colleges</Text>
-          </View>
-
           {/* Search Bar */}
           <View style={styles.searchContainer}>
             <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
@@ -221,13 +238,15 @@ export default function CollegeListScreen() {
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
+              accessibilityRole="search"
             />
           </View>
 
           {/* Hero Banner */}
           <ImageBackground
             source={{
-              uri: 'https://images.unsplash.com/photo-1679756398608-29e265c14246?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+              uri:
+                'https://images.unsplash.com/photo-1679756398608-29e265c14246?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             }}
             style={styles.heroContainer}
             imageStyle={styles.heroImage}
@@ -244,7 +263,12 @@ export default function CollegeListScreen() {
               <TouchableOpacity
                 activeOpacity={1}
                 style={[styles.tab, activeTab === 'Colleges' && styles.activeTab]}
-                onPress={() => setActiveTab('Colleges')}
+                onPress={() => {
+                  setActiveTab('Colleges');
+                  setSelectedCourse(null);
+                }}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: activeTab === 'Colleges' }}
               >
                 <Text style={[styles.tabText, activeTab === 'Colleges' && styles.activeTabText]}>
                   Colleges
@@ -254,6 +278,8 @@ export default function CollegeListScreen() {
                 activeOpacity={1}
                 style={[styles.tab, activeTab === 'Courses' && styles.activeTab]}
                 onPress={() => setActiveTab('Courses')}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: activeTab === 'Courses' }}
               >
                 <Text style={[styles.tabText, activeTab === 'Courses' && styles.activeTabText]}>
                   Courses
@@ -262,18 +288,36 @@ export default function CollegeListScreen() {
             </View>
 
             <View style={styles.dropdownContainer}>
-              <TouchableOpacity style={styles.dropdown} onPress={() => setShowStreamModal(true)}>
+              {/* Stream dropdown: always enabled */}
+              <TouchableOpacity
+                style={styles.dropdown}
+                onPress={() => setShowStreamModal(true)}
+                accessibilityRole="button"
+              >
                 <Text style={styles.dropdownText}>
                   {selectedStream ? `Stream: ${selectedStream}` : 'Select Stream'}
                 </Text>
                 <Ionicons name="chevron-down" size={20} color="#555" />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.dropdown} onPress={() => setShowCourseModal(true)}>
-                <Text style={styles.dropdownText}>
+              {/* Course dropdown: contextual gating */}
+
+              <TouchableOpacity
+                style={[
+                  styles.dropdown,
+                  !isCourseContext && styles.dropdownDimmed, // keep this LAST
+                ]}
+                disabled={!isCourseContext}
+                onPress={() => {
+                  if (!isCourseContext) return; // safety
+                  setShowCourseModal(true);
+                }}
+                accessibilityState={{ disabled: !isCourseContext }}
+              >
+                <Text style={[styles.dropdownText, !isCourseContext && styles.dropdownTextDimmed]}>
                   {selectedCourse ? `Course: ${selectedCourse}` : 'Select Course'}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color="#555" />
+                <Ionicons name="chevron-down" size={20} color={isCourseContext ? '#555' : '#9CA3AF'} />
               </TouchableOpacity>
             </View>
 
@@ -292,7 +336,9 @@ export default function CollegeListScreen() {
 
           {/* Colleges List */}
           <View style={styles.collegesSection}>
-            <Text style={styles.sectionTitle}>Colleges</Text>
+            <Text style={styles.sectionTitle}>
+              Colleges {filteredColleges.length > 0 ? `(${filteredColleges.length})` : ''}
+            </Text>
             {filteredColleges.map((college) => (
               <CollegeCard key={college.id} college={college} />
             ))}
@@ -309,13 +355,17 @@ export default function CollegeListScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
   scrollView: { backgroundColor: '#F8F9FA' },
-  container: { padding: 16 },
+  container: { paddingHorizontal: 16 },
+    dropdownText: { color: '#333' },
+  dropdownDimmed: { opacity: 0.45, backgroundColor: '#E5E7EB' },
+  dropdownTextDimmed: { color: '#9CA3AF' },
   header: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 10,
     position: 'relative',
+    backgroundColor: 'white',
   },
   headerTitle: { fontSize: 20, fontWeight: 'bold' },
   searchContainer: {
@@ -391,7 +441,6 @@ const styles = StyleSheet.create({
     padding: 15,
     marginHorizontal: 5,
   },
-  dropdownText: { color: '#333' },
   distanceLabel: {
     marginTop: 20,
     marginLeft: 5,
