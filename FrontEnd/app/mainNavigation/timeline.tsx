@@ -143,6 +143,7 @@ export default function Timeline() {
   );
 
   return (
+    <View style={{flex: 1, backgroundColor: '#F7F8FA'}}>
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -207,11 +208,12 @@ export default function Timeline() {
         }
       />
     </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 0, backgroundColor: '#F7F8FA', height: "100%" , alignContent: 'flex-start'},
+  container: { flex: 0, backgroundColor: '#F7F8FA', height: "auto" },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
