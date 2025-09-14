@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ProgressBar from "@/component/ProgressBar";
 import YellowBtn from "@/component/YellowBtn";
 import "../global.css";
+import { useSession } from './_layout';
 
 const SignupStep = () => {
   const router = useRouter();
@@ -25,6 +26,7 @@ const SignupStep = () => {
   const [otp, setOtp] = useState("");
 
   // Mock send OTP
+  const { signIn } = useSession();
   const handleSendOtp = () => {
     if (phone.length !== 10) {
       Alert.alert("Error", "Please enter a valid 10-digit phone number");
@@ -45,8 +47,9 @@ const SignupStep = () => {
       ...(formData ? JSON.parse(formData) : {}),
       phone,
     };
-
+    
     console.log("Final Signup Data:", data);
+     signIn();
     Alert.alert("Success", "Account created successfully!");
     router.push("/assesment");
   };
