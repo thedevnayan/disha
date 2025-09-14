@@ -11,6 +11,10 @@ const onStarted = ()=>{
   route.navigate("/createAccount")
 }
 
+const onLogin = ()=>{
+  route.navigate("/login")
+}
+
 export default function Index() {
   return (
     <SafeAreaView
@@ -70,7 +74,7 @@ export default function Index() {
             detail={"Access a wealth of knowledge to guide your decisions."}
           />
           <YellowBtn btnTitle={"Get Started"} f={onStarted}/>
-          <HighLightBtn btnTitle={"Login"} f={onStarted}/>
+          <HighLightBtn btnTitle={"Login"} f={onLogin}/>
         </View>
       </View>
     </SafeAreaView>

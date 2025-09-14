@@ -94,6 +94,7 @@ function RootNavigator() {
         <Stack.Screen name="signup-step" options={{ headerShown: false }} />
         <Stack.Screen name="assesment" options={{ headerShown: false }} />
         <Stack.Screen name="quiz" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
       </Stack.Protected>
 
       {/* Show mainNavigation only when authenticated */}
