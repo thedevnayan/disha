@@ -1,21 +1,24 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import {
+  Dimensions,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  View,
   Text,
-  Image,
   TouchableOpacity,
-  Dimensions,
+  View,
 } from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSession } from "../_layout";
+
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const {signOut} = useSession();
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -108,7 +111,7 @@ export default function ProfileScreen() {
               </View>
               <MaterialIcons name="chevron-right" size={24} color="#94a3b8" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={signOut}>
               <View style={styles.menuItemContent}>
                 <MaterialIcons name="logout" size={24} color="#ef4444" />
                 <Text style={styles.logoutText}>Logout</Text>

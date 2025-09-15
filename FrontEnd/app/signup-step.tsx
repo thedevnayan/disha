@@ -1,19 +1,19 @@
 // app/signup-step.tsx
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Alert,
-  ScrollView,
-  TextInput,
-  StyleSheet,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import ProgressBar from "@/component/ProgressBar";
 import YellowBtn from "@/component/YellowBtn";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 import { useSession } from './_layout';
 
@@ -50,8 +50,8 @@ const SignupStep = () => {
     
     console.log("Final Signup Data:", data);
      signIn();
-    Alert.alert("Success", "Account created successfully!");
-    router.push("/assesment");
+     Alert.alert("Success", "Account created successfully!");
+     router.push("/assesment");
   };
 
   return (
