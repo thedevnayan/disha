@@ -26,7 +26,7 @@ const SignupStep = () => {
   const [otp, setOtp] = useState("");
 
   // Mock send OTP
-  const { signIn } = useSession();
+  const { signIn, setUserProfile } = useSession();
   const handleSendOtp = () => {
     if (phone.length !== 10) {
       Alert.alert("Error", "Please enter a valid 10-digit phone number");
@@ -46,12 +46,12 @@ const SignupStep = () => {
     const data = {
       ...(formData ? JSON.parse(formData) : {}),
       phone,
+      isAssessmentComplete: false, // default to false
     };
-    
-    console.log("Final Signup Data:", data);
-     signIn();
-     Alert.alert("Success", "Account created successfully!");
-     router.push("/assesment");
+
+    setUserProfile(data); // <-- Save user profile
+    signIn();
+    router.push("/assesment");
   };
 
   return (

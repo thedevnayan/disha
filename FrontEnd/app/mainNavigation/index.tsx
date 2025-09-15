@@ -1,9 +1,10 @@
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, StatusBar } from 'react-native';
+import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSession } from '../_layout';
 
-const username = "Nayan Lohar";
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const RecommendedStream = ({ title, image }:any) => (
@@ -33,6 +34,20 @@ const RecentActivity = ({ title, subtitle, icon, color }:any) => (
 );
 
 export default function Home() {
+  const { userProfile } = useSession();
+  const router = useRouter();
+  // const pathname = usePathname();
+
+  // useEffect(() => {
+  //   if (
+  //     userProfile &&
+  //     !userProfile.isAssessmentComplete &&
+  //     pathname !== '/assesment'
+  //   ) {
+  //     router.replace('/assesment');
+  //   }
+  // }, [userProfile, pathname]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor="#F9FAFB" barStyle="dark-content" />
@@ -44,7 +59,7 @@ export default function Home() {
               source={{ uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuC8ai9dqCugWabTJeVAbkyL_DKyYL1UagACHQzEEuCgy-LC3f145oKr4kQ9WWXwAoi0rjkqXPC78sG5BIJjYWKqmTr8YSdYdSYtnlXEPBCAsiUDHnnh_XWtk4tMAbL9bWy40cOxfRlV5eGoZr9LHRjC_zTGhWMSHP5sFFtRJfloLmvIiMqEiaxJH0ncWC4B2AzRSJuTYUgCMLoAN2iw4lKlC0TQ7S3bvAfZ_b0EONRGD91jqqE7ItpyyujL9IETDqRw4geBRJP6ss4" }}
               style={styles.userImg}
             />
-            <Text style={styles.name}>Hi, {username}</Text>
+            <Text style={styles.name}>Hi, {userProfile?.fullName ?? "User"}</Text>
           </View>
           <View style={styles.headerRight}>
             <FontAwesome name="bell-o" size={24} color="#1C1C0D" />

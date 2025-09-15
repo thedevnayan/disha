@@ -1,7 +1,10 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // For icons
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSession } from './_layout';
+
 interface QuizInterface {
   title: string;
   btnOnPress: () => void;
@@ -13,6 +16,80 @@ interface QuizInterface {
   onPress: () => void;
   isSelected: boolean;
 }
+
+const scoringMatrix: Record<number, Record<string, Record<string, number>>> = {
+  0: { // Q1
+    A: { Science: 2, Engineering: 1 },
+    B: { Arts: 2, Architecture: 1 },
+    C: { Engineering: 2, Architecture: 1 },
+    D: { Management: 2 },
+    E: { Medical: 1, SocialSciences: 2 }
+  },
+  1: { // Q2
+    A: { Science: 2, DataScience: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2 },
+    D: { Management: 2 },
+    E: { Psychology: 2, SocialSciences: 1 }
+  },
+  2: { // Q3
+    A: { Science: 2, Research: 1 },
+    B: { Arts: 2, SocialSciences: 1 },
+    C: { Engineering: 2, Architecture: 1 },
+    D: { Management: 2 },
+    E: { Psychology: 2, Medical: 1 }
+  },
+  3: { // Q4
+    A: { Research: 2, Science: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2 },
+    D: { Management: 2, Business: 1 },
+    E: { Medical: 1, SocialSciences: 2 }
+  },
+  4: { // Q5
+    A: { Science: 2, Research: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2 },
+    D: { Management: 2 },
+    E: { Psychology: 2, Medical: 1 }
+  },
+  5: { // Q6
+    A: { DataScience: 2, Research: 2 },
+    B: { Arts: 2, Architecture: 1 },
+    C: { Engineering: 2 },
+    D: { Management: 2 },
+    E: { Psychology: 2, Medical: 1 }
+  },
+  6: { // Q7
+    A: { Research: 2, Science: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2, Architecture: 1 },
+    D: { Management: 2 },
+    E: { SocialSciences: 2, Medical: 1 }
+  },
+  7: { // Q8
+    A: { Science: 2, Engineering: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2, Architecture: 1 },
+    D: { Management: 2 },
+    E: { Medical: 2, SocialSciences: 1 }
+  },
+  8: { // Q9
+    A: { Science: 2, Research: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2 },
+    D: { Management: 2 },
+    E: { SocialSciences: 2, Psychology: 1 }
+  },
+  9: { // Q10
+    A: { Science: 2, Research: 1 },
+    B: { Arts: 2, Design: 1 },
+    C: { Engineering: 2, Architecture: 1 },
+    D: { Management: 2 },
+    E: { Psychology: 2, SocialSciences: 1 }
+  }
+};
+
 const questionData = [
   {
     question: 'Which of these activities do you enjoy the most?',
@@ -116,7 +193,6 @@ const questionData = [
   },
 ];
 
-
 const YellowBtn = ({ title, onPress }: QuizInterface) => (
   <TouchableOpacity onPress={onPress} style={buttonStyles.button}>
     <Text style={buttonStyles.text}>{title}</Text>
@@ -140,7 +216,7 @@ const buttonStyles = StyleSheet.create({
   },
 });
 
-const ProgressBar = ({ currentStep, totalSteps }:QuizInterface) => {
+const ProgressBar = ({ currentStep, totalSteps }: QuizInterface) => {
   const progressWidth = (currentStep / totalSteps) * 100;
   return (
     <View style={progressBarStyles.container}>
@@ -170,7 +246,7 @@ const progressBarStyles = StyleSheet.create({
   },
 });
 
-const OptionCard = ({ label, text, isSelected, onPress } : QuizInterface) => (
+const OptionCard = ({ label, text, isSelected, onPress }: QuizInterface) => (
   <TouchableOpacity
     activeOpacity={1}
     style={[
@@ -245,12 +321,44 @@ const optionStyles = StyleSheet.create({
   },
 });
 
+const streamIcons: Record<string, any> = {
+  Science: <MaterialCommunityIcons name="atom" size={32} color="#1C1C0D" />,
+  Engineering: <MaterialCommunityIcons name="cog" size={32} color="#1C1C0D" />,
+  Arts: <MaterialCommunityIcons name="palette" size={32} color="#1C1C0D" />,
+  Architecture: <MaterialCommunityIcons name="office-building" size={32} color="#1C1C0D" />,
+  Management: <MaterialCommunityIcons name="account-tie" size={32} color="#1C1C0D" />,
+  Medical: <MaterialCommunityIcons name="hospital" size={32} color="#f9f506" />,
+  SocialSciences: <MaterialCommunityIcons name="account-group" size={32} color="#1C1C0D" />,
+  DataScience: <MaterialCommunityIcons name="database" size={32} color="#1C1C0D" />,
+  Psychology: <MaterialCommunityIcons name="brain" size={32} color="#1C1C0D" />,
+  Research: <MaterialCommunityIcons name="microscope" size={32} color="#1C1C0D" />,
+  Design: <MaterialCommunityIcons name="vector-square" size={32} color="#1C1C0D" />,
+  Business: <MaterialCommunityIcons name="briefcase" size={32} color="#1C1C0D" />,
+};
+
 const Quiz = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
-const router = useRouter();
+  const [scores, setScores] = useState<Record<string, number>>({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [resultData, setResultData] = useState<Array<{stream: string, score: number}>>([]);
+  const router = useRouter();
+  const { userProfile, setUserProfile } = useSession();
   const currentQuestion = questionData[currentQuestionIndex];
   const totalQuestions = questionData.length;
+
+  const handleOptionSelect = (label: string) => {
+    setSelectedOption(label);
+
+    const streamPoints = scoringMatrix[currentQuestionIndex]?.[label] || {};
+    setScores((prevScores) => {
+      const updated = { ...prevScores };
+      for (const stream in streamPoints) {
+        updated[stream] = (updated[stream] || 0) + streamPoints[stream];
+      }
+      return updated;
+    });
+  };
 
   const handleNext = () => {
     if (selectedOption !== "") {
@@ -258,22 +366,40 @@ const router = useRouter();
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedOption("");
       } else {
-        Alert.alert('Quiz Complete!', 'You have finished the quiz. Redirecting to the main app...', [
-            { text: 'OK', onPress: () => router.replace('/mainNavigation') }
-        ]);
+        const topStreams = getBestStreams();
+        // Store result in profile
+        if (userProfile) {
+          setUserProfile({
+            ...userProfile,
+            isAssessmentComplete: true,
+            bestStreams: topStreams.map(([stream, score]) => ({ stream, score })),
+          });
+        }
+        setResultData(topStreams.map(([stream, score]) => ({ stream, score })));
+        setModalVisible(true);
       }
     } else {
-      Alert.alert('Error', 'Please select an option.');
+      // Optionally show a modal or toast for error
     }
   };
 
-    const handleBack = () => {
+  const handleBack = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setSelectedOption(""); // Clear selection on back navigation
+      setSelectedOption("");
     } else {
-        router.back();
+      router.back();
     }
+  };
+
+  const getBestStreams = () => {
+    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    return sorted.slice(0, 3); // Top 3
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    router.replace("/mainNavigation");
   };
 
   return (
@@ -283,10 +409,10 @@ const router = useRouter();
           <Image source={require("@/assets/images/BackWard.png")} style={screenStyles.backIcon} />
         </TouchableOpacity>
         <ProgressBar currentStep={currentQuestionIndex + 1} totalSteps={totalQuestions} title={''} btnOnPress={function (): void {
-                  throw new Error('Function not implemented.');
-              } } label={''} text={''} cardIsSelected={false} onPress={function (): void {
-                  throw new Error('Function not implemented.');
-              } } isSelected={false} />
+          throw new Error('Function not implemented.');
+        }} label={''} text={''} cardIsSelected={false} onPress={function (): void {
+          throw new Error('Function not implemented.');
+        }} isSelected={false} />
         <Text style={screenStyles.questionCount}>{currentQuestionIndex + 1}/{totalQuestions}</Text>
       </View>
 
@@ -299,21 +425,52 @@ const router = useRouter();
 
         {currentQuestion.options.map((option) => (
           <OptionCard
-                key={option.label}
-                label={option.label}
-                text={option.text}
-                isSelected={selectedOption === option.label}
-                onPress={() => setSelectedOption(option.label)} title={''} btnOnPress={function (): void {
-                    throw new Error('Function not implemented.');
-                } } currentStep={0} totalSteps={0} cardIsSelected={false}          />
+            key={option.label}
+            label={option.label}
+            text={option.text}
+            isSelected={selectedOption === option.label}
+            onPress={() => handleOptionSelect(option.label)}
+            title=""
+            btnOnPress={() => { }}
+            currentStep={0}
+            totalSteps={0}
+            cardIsSelected={false}
+          />
         ))}
       </ScrollView>
 
       <View style={screenStyles.bottomContainer}>
         <YellowBtn title="Next" onPress={handleNext} btnOnPress={function (): void {
-                  throw new Error('Function not implemented.');
-              } } currentStep={0} totalSteps={0} label={''} text={''} cardIsSelected={false} isSelected={false} />
+          throw new Error('Function not implemented.');
+        }} currentStep={0} totalSteps={0} label={''} text={''} cardIsSelected={false} isSelected={false} />
       </View>
+
+      {/* Modal for result */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleModalClose}
+      >
+        <View style={modalStyles.overlay}>
+          <View style={modalStyles.modalContainer}>
+            <Text style={modalStyles.title}>🎉 Your Best Fit Stream 🎉</Text>
+            <View style={modalStyles.iconRow}>
+              {resultData.length > 0 && (
+                <View style={modalStyles.streamContainer}>
+                  {streamIcons[resultData[0].stream] || (
+                    <MaterialCommunityIcons name="star" size={32} color="#f9f506" />
+                  )}
+                  <Text style={modalStyles.streamText}>{resultData[0].stream}</Text>
+                </View>
+              )}
+            </View>
+            <TouchableOpacity style={modalStyles.closeButton} onPress={handleModalClose}>
+              <Text style={modalStyles.closeButtonText}>Go to Dashboard</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -367,6 +524,64 @@ const screenStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
+  },
+});
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 28,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 18,
+    color: '#1C1C0D',
+    textAlign: 'center',
+  },
+  iconRow: {
+    width: '100%',
+    marginBottom: 18,
+  },
+  streamContainer: {
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  streamText: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 6,
+    color: '#333',
+  },
+  scoreText: {
+    fontSize: 15,
+    color: '#888',
+    marginTop: 2,
+  },
+  closeButton: {
+    marginTop: 18,
+    backgroundColor: '#f9f506',
+    borderRadius: 100,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  closeButtonText: {
+    fontWeight: 'bold',
+    color: '#333',
+    fontSize: 16,
   },
 });
 
