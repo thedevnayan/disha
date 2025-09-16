@@ -454,7 +454,7 @@ const Quiz = () => {
       >
         <View style={modalStyles.overlay}>
           <View style={modalStyles.modalContainer}>
-            <Text style={modalStyles.title}>🎉 Your Best Fit Stream 🎉</Text>
+            <Text style={modalStyles.title}> Your Best Fit Stream </Text>
             <View style={modalStyles.iconRow}>
               {resultData.length > 0 && (
                 <View style={modalStyles.streamContainer}>
