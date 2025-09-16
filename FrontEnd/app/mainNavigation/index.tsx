@@ -36,17 +36,6 @@ const RecentActivity = ({ title, subtitle, icon, color }:any) => (
 export default function Home() {
   const { userProfile } = useSession();
   const router = useRouter();
-  // const pathname = usePathname();
-
-  // useEffect(() => {
-  //   if (
-  //     userProfile &&
-  //     !userProfile.isAssessmentComplete &&
-  //     pathname !== '/assesment'
-  //   ) {
-  //     router.replace('/assesment');
-  //   }
-  // }, [userProfile, pathname]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
