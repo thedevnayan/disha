@@ -5,7 +5,7 @@ import mongoConnect from "./mongo/mongoose.connect.js";
 
 const app = express();
 
-const PORT = 4000;
+const PORT = 10000;
 
 const allowedOrigin = ["https//:localhost:3000", "http//:localhost:3000","http://192.168.136.1:5500"];
 
