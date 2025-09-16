@@ -7,7 +7,7 @@ export const predictCarrer = (req, res) => {
   const { answers } = req.body;
   console.log("Received answers:", answers);
 
-  const API_KEY = process.env.GEMINI_AUTH; 
+  const API_KEY = process.env.GEMINI_AUTH;
 
   async function callGemini() {
     try {
@@ -21,7 +21,7 @@ export const predictCarrer = (req, res) => {
                   text:
                     ` Here is the question and answer of student - ${JSON.stringify(
                       answers
-                    )}, now suggest which stream or career path is best suited for this individual student. Strictly give answer in 20-25 words what can be the best career option for this student.`,
+                    )}, Based on these responses, suggest the most suitable career path. Your reply must be concise (5–10 words), clear, and include a professional role (e.g., doctor, engineer, lawyer, teacher, scientist). Avoid unnecessary details or extra text.`,
                 },
               ],
             },

@@ -43,9 +43,8 @@ type UserProfile = {
   selectedDistrict: string;
   language: string;
   isAssessmentComplete: boolean;
-  bestStreams: string;
+  bestStreams?: Array<{ stream: string; score: number }>; 
 };
-
 
 // Session context
 const SessionContext = createContext<{
@@ -98,6 +97,13 @@ function SessionProvider({ children }: PropsWithChildren) {
 }
 
 // Optional: keep splash until auth loads to avoid flicker
+import { SplashScreen } from 'expo-router';
+import React from 'react';
+function SplashController() {
+  const { isLoading } = useSession();
+  if (!isLoading) SplashScreen.hideAsync();
+  return null;
+}
 
 export default function Root() {
   return (
