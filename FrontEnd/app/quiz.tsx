@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // For icons
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { use, useState } from 'react';
+import { ActivityIndicator, Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from './_layout';
 import axios from "axios"; 
@@ -348,15 +348,16 @@ const Quiz = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [resultData, setResultData] = useState<Array<{stream: string, score: number}>>([]);
   const [geminiResult, setGeminiResult] = useState<string | null>(null);
+  const [loadingGemini, setLoadingGemini] = useState(false);
   const router = useRouter();
   const { userProfile, setUserProfile } = useSession();
   const currentQuestion = questionData[currentQuestionIndex];
   const totalQuestions = questionData.length;
 
-  const handleOptionSelect = (label: string) => {
-    setSelectedOption(label);
+  const handleOptionSelect = (text: string) => {
+    setSelectedOption(text);
 
-    const streamPoints = scoringMatrix[currentQuestionIndex]?.[label] || {};
+    const streamPoints = scoringMatrix[currentQuestionIndex]?.[text] || {};
     setScores((prevScores) => {
       const updated = { ...prevScores };
       for (const stream in streamPoints) {
@@ -366,18 +367,17 @@ const Quiz = () => {
     });
   };
 
-  // Collect Q&A pairs
   const getQAData = () => {
     return questionData.map((q, idx) => ({
       question: q.question,
-      answer: selectedOption
+      answer: q.options.find(o => o.label === (selectedOption || ''))?.text || ''
     }));
   };
 
   const fetchGeminiRecommendation = async () => {
     try {
       const answers = getQAData();
-      const res = await axios.post("http://172.20.10.7:4000/llm/get-career-predicted", { answers });
+      const res = await axios.post("https://disha-backend-t6ak.onrender.com/llm/get-career-predicted", { answers });
       console.log("Gemini response:", res.data);
       setGeminiResult(res.data.recommendation);
     } catch (err) {
@@ -392,7 +392,9 @@ const Quiz = () => {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedOption("");
       } else {
+        setLoadingGemini(true); 
         await fetchGeminiRecommendation();
+        setLoadingGemini(false); 
         setModalVisible(true);
       }
     } else {
@@ -462,7 +464,6 @@ const Quiz = () => {
         }} currentStep={0} totalSteps={0} label={''} text={''} cardIsSelected={false} isSelected={false} />
       </View>
 
-      {/* Modal for result */}
       <Modal
         visible={modalVisible}
         transparent
@@ -480,6 +481,37 @@ const Quiz = () => {
             <TouchableOpacity style={modalStyles.closeButton} onPress={handleModalClose}>
               <Text style={modalStyles.closeButtonText}>Go to Dashboard</Text>
             </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={loadingGemini}
+        transparent
+        animationType="fade"
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "rgba(0,0,0,0.2)"
+        }}>
+          <View style={{
+            backgroundColor: "white",
+            borderRadius: 16,
+            padding: 32,
+            alignItems: "center",
+            elevation: 4
+          }}>
+            <ActivityIndicator size="large" color="#5f5e00ff" />
+            <Text style={{
+              marginTop: 18,
+              fontSize: 16,
+              fontWeight: "600",
+              color: "#1C1C0D"
+            }}>
+              Evaluating best career field for you...
+            </Text>
           </View>
         </View>
       </Modal>

@@ -49,7 +49,7 @@ const SignupStep = () => {
       isAssessmentComplete: false, // default to false
     };
 
-    setUserProfile(data); // <-- Save user profile
+    setUserProfile(data); 
     signIn();
     router.push("/assesment");
   };
