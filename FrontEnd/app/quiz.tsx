@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // For icons
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from './_layout';
 
@@ -367,7 +367,6 @@ const Quiz = () => {
         setSelectedOption("");
       } else {
         const topStreams = getBestStreams();
-        // Store result in profile
         if (userProfile) {
           setUserProfile({
             ...userProfile,
@@ -379,7 +378,7 @@ const Quiz = () => {
         setModalVisible(true);
       }
     } else {
-      // Optionally show a modal or toast for error
+      Alert.alert("Please select an option before proceeding.");
     }
   };
 
@@ -394,7 +393,7 @@ const Quiz = () => {
 
   const getBestStreams = () => {
     const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-    return sorted.slice(0, 3); // Top 3
+    return sorted.slice(0, 3); 
   };
 
   const handleModalClose = () => {
