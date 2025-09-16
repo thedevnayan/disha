@@ -4,6 +4,11 @@ import React, { useState } from 'react';
 import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from './_layout';
+import axios from "axios"; 
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+
+
+
 
 interface QuizInterface {
   title: string;
@@ -342,6 +347,7 @@ const Quiz = () => {
   const [scores, setScores] = useState<Record<string, number>>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [resultData, setResultData] = useState<Array<{stream: string, score: number}>>([]);
+  const [geminiResult, setGeminiResult] = useState<string | null>(null);
   const router = useRouter();
   const { userProfile, setUserProfile } = useSession();
   const currentQuestion = questionData[currentQuestionIndex];
@@ -360,21 +366,33 @@ const Quiz = () => {
     });
   };
 
-  const handleNext = () => {
+  // Collect Q&A pairs
+  const getQAData = () => {
+    return questionData.map((q, idx) => ({
+      question: q.question,
+      answer: selectedOption
+    }));
+  };
+
+  const fetchGeminiRecommendation = async () => {
+    try {
+      const answers = getQAData();
+      const res = await axios.post("http://172.20.10.7:4000/llm/get-career-predicted", { answers });
+      console.log("Gemini response:", res.data);
+      setGeminiResult(res.data.recommendation);
+    } catch (err) {
+      console.error("Error fetching Gemini recommendation:", err);
+      setGeminiResult("Could not fetch recommendation");
+    }
+  };
+
+  const handleNext = async () => {
     if (selectedOption !== "") {
       if (currentQuestionIndex < totalQuestions - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedOption("");
       } else {
-        const topStreams = getBestStreams();
-        if (userProfile) {
-          setUserProfile({
-            ...userProfile,
-            isAssessmentComplete: true,
-            bestStreams: topStreams.map(([stream, score]) => ({ stream, score })),
-          });
-        }
-        setResultData(topStreams.map(([stream, score]) => ({ stream, score })));
+        await fetchGeminiRecommendation();
         setModalVisible(true);
       }
     } else {
@@ -453,17 +471,12 @@ const Quiz = () => {
       >
         <View style={modalStyles.overlay}>
           <View style={modalStyles.modalContainer}>
-            <Text style={modalStyles.title}> Your Best Fit Stream </Text>
-            <View style={modalStyles.iconRow}>
-              {resultData.length > 0 && (
-                <View style={modalStyles.streamContainer}>
-                  {streamIcons[resultData[0].stream] || (
-                    <MaterialCommunityIcons name="star" size={32} color="#f9f506" />
-                  )}
-                  <Text style={modalStyles.streamText}>{resultData[0].stream}</Text>
-                </View>
-              )}
-            </View>
+            <Text style={modalStyles.title}>Your Best Suitable Field</Text>
+            {geminiResult ? (
+              <Text style={modalStyles.streamText}>{geminiResult}</Text>
+            ) : (
+              <Text style={modalStyles.streamText}>Loading...</Text>
+            )}
             <TouchableOpacity style={modalStyles.closeButton} onPress={handleModalClose}>
               <Text style={modalStyles.closeButtonText}>Go to Dashboard</Text>
             </TouchableOpacity>

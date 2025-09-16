@@ -19,8 +19,7 @@ export const predictCarrer = (req, res) => {
               parts: [
                 {
                   text:
-                    process.env.SECRET_SAUCE +
-                    ` individual student answer to these question - ${JSON.stringify(
+                    ` Here is the question and answer of student - ${JSON.stringify(
                       answers
                     )}, now suggest which stream or career path is best suited for this individual student. Strictly give answer in only one word`,
                 },
