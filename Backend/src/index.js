@@ -1,12 +1,13 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
+import mongoConnect from "./mongo/mongoose.connect.js";
 
 const app = express();
 
 const PORT = 4000;
 
-const allowedOrigin = ["https//:localhost:3000", "http//:localhost:3000"];
+const allowedOrigin = ["https//:localhost:3000", "http//:localhost:3000","http://192.168.136.1:5500"];
 
 mongoConnect().then(() => {
 
@@ -44,10 +45,18 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"))
 
+
+
 import authRouter from "./routes/authRouter.js"
-import mongoConnect from "./mongo/mongoose.connect.js";
 
 app.use("/auth", authRouter)
+
+
+import LLMRouter from "./routes/LLMRouter.js"
+
+app.use("/llm", LLMRouter)
+
+
 
 
 app.get("/", (req, res) => { res.send("Server Found!") })
