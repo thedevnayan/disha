@@ -1,16 +1,16 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import {
   Dimensions,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from "../_layout";
 
 
@@ -18,7 +18,16 @@ const windowWidth = Dimensions.get('window').width;
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const {signOut} = useSession();
+  const router = useRouter();
+  const { signOut, userProfile, setUserProfile } = useSession();
+
+  const handleRetakeAssessment = () => {
+    if (userProfile) {
+      setUserProfile({ ...userProfile, isAssessmentComplete: false });
+    }
+    router.navigate("/assesment");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -28,13 +37,17 @@ export default function ProfileScreen() {
           <View style={styles.headerContent}>
             <Image
               source={{
-                uri: 'https://i.ibb.co/TBc3ZDXg/Whats-App-Image-2025-09-03-at-01-44-24-b8e9f6a7.jpg',
+                uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC8ai9dqCugWabTJeVAbkyL_DKyYL1UagACHQzEEuCgy-LC3f145oKr4kQ9WWXwAoi0rjkqXPC78sG5BIJjYWKqmTr8YSdYdSYtnlXEPBCAsiUDHnnh_XWtk4tMAbL9bWy40cOxfRlV5eGoZr9LHRjC_zTGhWMSHP5sFFtRJfloLmvIiMqEiaxJH0ncWC4B2AzRSJuTYUgCMLoAN2iw4lKlC0TQ7S3bvAfZ_b0EONRGD91jqqE7ItpyyujL9IETDqRw4geBRJP6ss4',
               }}
               style={styles.avatar}
             />
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>Nayan Lohar</Text>
-              <Text style={styles.userSubtitle}>Student, Class 12th</Text>
+              <Text style={styles.userName}>{userProfile?.fullName ?? "User"}</Text>
+              <Text style={styles.userSubtitle}>
+                {userProfile?.currentClass ? `Class ${userProfile.currentClass}` : ""}
+                {userProfile?.selectedState ? `, ${userProfile.selectedState}` : ""}
+                {userProfile?.selectedDistrict ? `, ${userProfile.selectedDistrict}` : ""}
+              </Text>
             </View>
           </View>
         </View>
@@ -46,7 +59,11 @@ export default function ProfileScreen() {
                 <Text style={styles.cardTitle}>Career Assessment</Text>
                 <Text style={styles.cardSubtitle}>
                   Your top recommendation is{' '}
-                  <Text style={styles.highlightText}>Engineering</Text>.
+                  <Text style={styles.highlightText}>
+                    {userProfile?.bestStreams && userProfile.bestStreams.length > 0
+                      ? userProfile.bestStreams[0].stream
+                      : "—"}
+                  </Text>.
                 </Text>
               </View>
               <TouchableOpacity style={styles.iconButton}>
@@ -57,7 +74,7 @@ export default function ProfileScreen() {
               <TouchableOpacity style={styles.primaryButton}>
                 <Text style={styles.primaryButtonText}>View Full Report</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryButton}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={handleRetakeAssessment}>
                 <Text style={styles.secondaryButtonText}>Retake Test</Text>
               </TouchableOpacity>
             </View>
