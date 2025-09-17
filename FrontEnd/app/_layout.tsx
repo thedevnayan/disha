@@ -1,15 +1,14 @@
 // app/_layout.tsx
-import { Stack } from 'expo-router';
+import { Stack, SplashScreen } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { createContext, PropsWithChildren, use } from 'react';
+import React, { createContext, PropsWithChildren, useContext, useEffect } from 'react';
 import { Platform } from 'react-native';
 
-// Simple storage hook (from Expo docs)
-function useStorageState(key: string): [[boolean, string|null], (v: string|null)=>void] {
-  const [state, setState] = React.useReducer(
-    (_: [boolean, string|null], v: string|null) => [false, v],
-    [true, null]
-  ) as [[boolean, string|null], (v: string|null)=>void];
+// Ensure splash is registered before any hide call
+void SplashScreen.preventAutoHideAsync();
+
+function useStorageState(key: string): [[boolean, string | null], (v: string | null) => void] {
+  const [state, setState] = React.useReducer((_: [boolean, string | null], v: string | null) => [false, v], [true, null]) as [[boolean, string | null], (v: string | null) => void];
 
   React.useEffect(() => {
     if (Platform.OS === 'web') {
@@ -21,21 +20,23 @@ function useStorageState(key: string): [[boolean, string|null], (v: string|null)
     }
   }, [key]);
 
-  const setValue = React.useCallback((v: string|null) => {
-    setState(v);
-    if (Platform.OS === 'web') {
-      if (v == null) localStorage.removeItem(key);
-      else localStorage.setItem(key, v);
-    } else {
-      if (v == null) SecureStore.deleteItemAsync(key);
-      else SecureStore.setItemAsync(key, v);
-    }
-  }, [key]);
+  const setValue = React.useCallback(
+    (v: string | null) => {
+      setState(v);
+      if (Platform.OS === 'web') {
+        if (v == null) localStorage.removeItem(key);
+        else localStorage.setItem(key, v);
+      } else {
+        if (v == null) SecureStore.deleteItemAsync(key);
+        else SecureStore.setItemAsync(key, v);
+      }
+    },
+    [key]
+  );
 
   return [state, setValue];
 }
 
-// User profile type
 type UserProfile = {
   fullName: string;
   currentClass: string;
@@ -43,10 +44,10 @@ type UserProfile = {
   selectedDistrict: string;
   language: string;
   isAssessmentComplete: boolean;
-  bestStreams?: Array<{ stream: string; score: number }>; 
+  bestStreams: string;
+  geminiRecommendation?: string;
 };
 
-// Session context
 const SessionContext = createContext<{
   session: string | null;
   isLoading: boolean;
@@ -54,7 +55,7 @@ const SessionContext = createContext<{
   setUserProfile: (profile: UserProfile) => void;
   signIn: () => void;
   signOut: () => void;
-}>( {
+}>({
   session: null,
   isLoading: false,
   userProfile: null,
@@ -64,7 +65,7 @@ const SessionContext = createContext<{
 });
 
 export function useSession() {
-  const v = use(SessionContext);
+  const v = useContext(SessionContext);
   if (!v) throw new Error('useSession must be wrapped in provider');
   return v;
 }
@@ -96,12 +97,13 @@ function SessionProvider({ children }: PropsWithChildren) {
   );
 }
 
-// Optional: keep splash until auth loads to avoid flicker
-import { SplashScreen } from 'expo-router';
-import React from 'react';
 function SplashController() {
   const { isLoading } = useSession();
-  if (!isLoading) SplashScreen.hideAsync();
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [isLoading]);
   return null;
 }
 
@@ -119,7 +121,6 @@ function RootNavigator() {
 
   return (
     <Stack>
-      {/* Show welcome (index) only when not authenticated */}
       <Stack.Protected guard={!session}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="createAccount" options={{ headerShown: false }} />
@@ -127,7 +128,6 @@ function RootNavigator() {
         <Stack.Screen name="login" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      {/* Show mainNavigation, assesment, and quiz when authenticated */}
       <Stack.Protected guard={!!session}>
         <Stack.Screen name="mainNavigation" options={{ headerShown: false }} />
         <Stack.Screen name="assesment" options={{ headerShown: false }} />

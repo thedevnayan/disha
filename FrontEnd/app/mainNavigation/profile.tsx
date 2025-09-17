@@ -61,9 +61,9 @@ export default function ProfileScreen() {
                   Your top recommendation is{' '}
                   <Text style={styles.highlightText}>
                     {userProfile?.bestStreams && userProfile.bestStreams.length > 0
-                      ? userProfile.bestStreams[0].stream
+                      ? userProfile.bestStreams
                       : "—"}
-                  </Text>.
+                  </Text>
                 </Text>
               </View>
               <TouchableOpacity style={styles.iconButton}>
@@ -213,8 +213,9 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
+    right: 20,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   buttonContainer: {
     marginTop: 16,

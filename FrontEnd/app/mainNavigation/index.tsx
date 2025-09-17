@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '../_layout';
 
@@ -58,10 +58,12 @@ export default function Home() {
         {/* Categories Grid */}
         <View style={styles.sectionPadding}>
           <View style={styles.gridContainer}>
+            <TouchableOpacity onPress={() => router.push('/mainNavigation/explore')}>
             <View style={[styles.gridItem, { backgroundColor: '#FDE047' }]}>
               <FontAwesome name="briefcase" size={40} color="#B45309" />
               <Text style={[styles.gridTitle, { color: '#B45309' }]}>Career Guidance</Text>
             </View>
+            </TouchableOpacity>
             <View style={[styles.gridItem, { backgroundColor: '#BFDBFE' }]}>
               <FontAwesome name="podcast" size={40} color="#1E40AF" />
               <Text style={[styles.gridTitle, { color: '#1E40AF' }]}>One on One Career Counciling</Text>
@@ -70,10 +72,12 @@ export default function Home() {
               <FontAwesome name="book" size={40} color="#065F46" />
               <Text style={[styles.gridTitle, { color: '#065F46' }]}>E-Book Resourses</Text>
             </View>
+            <TouchableOpacity onPress={() => router.push('/mainNavigation/colleges')}>
             <View style={[styles.gridItem, { backgroundColor: '#E9D5FF' }]}>
               <FontAwesome name="map-marker" size={40} color="#6B21A8" />
               <Text style={[styles.gridTitle, { color: '#6B21A8' }]}>Colleges Near Me</Text>
             </View>
+            </TouchableOpacity>
           </View>
         </View>
 
